@@ -35,7 +35,7 @@ from Products.ZenUtils.Utils import prepId
 class EsxTopRunner(object):
     statToRegex = {
         'Memory': '".*%s\\\(.*)"',
-        'Physical Cpu': '".*%s\(%s\)\\\(.*)\""',
+        'Physical Cpu': '".*%s\(%s\)\\\(.*)\"',
         'Physical Cpu Load': '".*%s\\\(.*)"',
     }
 
@@ -215,7 +215,7 @@ class EsxTopRunner(object):
             return Printer( '(.*)' )
         elif self.options.showvms:
             # Pick a category that shows the system names
-            matchRegex = ".*Group Cpu\([0-9]+:([^)]*)\)"
+            matchRegex = ".*\\Vcpu\([0-9]+:([^)].*):[0-9]+:(vmx|vmware-vmx)\)"
             return VmPrinter(matchRegex)
         elif self.options.showdatasources:
             matchRegex = '([^(]+).*'
@@ -361,12 +361,12 @@ class VmPrinter(ColumnPrinter):
         name = nameValue[0]
         if name is None:
             return False
-        elif name in self.notVms:
-            return False
+#        elif name in self.notVms:
+#            return False
 
-        for regex in self.notVmsRegexes:
-            if regex.match(name):
-                return False
+#        for regex in self.notVmsRegexes:
+#            if regex.match(name):
+#                return False
         return True
 
 
