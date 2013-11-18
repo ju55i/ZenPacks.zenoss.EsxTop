@@ -21,6 +21,7 @@ import os.path
 import getopt
 import re
 import types
+import string
 import time
 from itertools import izip, imap, ifilter
 from subprocess import Popen, PIPE
@@ -28,9 +29,29 @@ from optparse import OptionParser
 from StringIO import StringIO
 from fcntl import flock, LOCK_EX, LOCK_SH
 
-import Globals
-from Products.ZenUtils.Utils import prepId
+def prepId(id, subchar='_'):
+    """
+    Make an id with valid url characters. Subs [^a-zA-Z0-9-_,.$\(\) ]
+    with subchar.  If id then starts with subchar it is removed.
 
+    @param id: user-supplied id
+    @type id: string
+    @return: valid id
+    @rtype: string
+    """
+    _prepId = re.compile(r'[^a-zA-Z0-9-_,.$\(\) ]').sub
+    _cleanend = re.compile(r"%s+$" % subchar).sub
+    if id is None:
+        raise ValueError('Ids can not be None')
+    if not isinstance(id, basestring):
+        id = str(id)
+    id = _prepId(subchar, id)
+    while id.startswith(subchar):
+        if len(id) > 1: id = id[1:]
+        else: id = "-"
+    id = _cleanend("",id)
+    id = id.lstrip(string.whitespace + '_').rstrip()
+    return str(id)
 
 class EsxTopRunner(object):
     statToRegex = {
